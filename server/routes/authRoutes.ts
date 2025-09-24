@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { registerUserRoutes, loginUserRoutes } from "../controllers/authControllers";
-import { deleteUser, updatePassword, updateUsername } from "../controllers/userController";
+import { deleteByAdmin, deleteUser, makeAdmin, updatePassword, updateUsername } from "../controllers/userController";
 import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = Router();
@@ -9,5 +9,7 @@ router.post("/login", loginUserRoutes);
 router.put("/updateUsername", authMiddleware , updateUsername); 
 router.delete("/deleteUser", authMiddleware , deleteUser);
 router.put("/updatePassword", authMiddleware , updatePassword);
+router.delete("/deleteByAdmin/:id", authMiddleware , deleteByAdmin); // Admin can delete any user by ID
+router.put("/makeAdmin/:id", authMiddleware , makeAdmin); // Admin can promote user to admin
 
 export default router;

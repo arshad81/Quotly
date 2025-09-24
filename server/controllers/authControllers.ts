@@ -10,8 +10,15 @@ export const registerUserRoutes = async (req: Request, res: Response) => {
         if (existingUser) {
             return res.status(400).json({ message: "User already exists" });
         }
+        let role;
+        if (username == "admin"){
+            role = "admin"
+        }
+        else {
+            role = "user"
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ username, password: hashedPassword });
+        const newUser = new User({ username, password: hashedPassword, role: role });
         await newUser.save();
         const token = jwt.sign({ id: newUser._id, role: newUser.role }, "your_jwt_secret", { expiresIn: "1h" });
         res.status(201).json({ user: { id: newUser._id, username: newUser.username, role: newUser.role }, token });

@@ -4,6 +4,7 @@ import { User } from "../models/User";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { Quote } from "../models/Quote";
 
 export const updateUsername = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
@@ -25,11 +26,13 @@ export const updateUsername = async (req: AuthRequest, res: Response) => {
 
 export const deleteUser = async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
+    const username = req.user?.username;
     if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
     }
     try {
         await User.findByIdAndDelete(userId);
+        await Quote.deleteMany({ authorId: userId }); // Delete all quotes by the user
         res.status(200).json({ message: "User deleted successfully" });
     } catch (error) {
         res.status(500).json({ message: "Server error" });
@@ -47,6 +50,39 @@ export const updatePassword = async (req: AuthRequest, res: Response) => {
         const hashedPassword = await bcrypt.hash(newPassword, salt);
         const updatedUser = await User.findByIdAndUpdate(userId, { password: hashedPassword }, { new: true });
         res.status(200).json({ message: "Password updated successfully", user: updatedUser });
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+export const deleteByAdmin = async (req: AuthRequest, res: Response) => {
+    const userId = req.params.id;
+    if (req.user?.role !== "admin") {
+        return res.status(403).json({ message: "Forbidden" });
+    }
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        await User.findByIdAndDelete(userId);
+        await Quote.deleteMany({ authorId: user._id }); // Delete all quotes by the user
+        res.status(200).json({
+            message: `User '${user.username}' and their quotes deleted successfully`
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+export const makeAdmin = async (req: AuthRequest, res: Response) => {
+    const userId = req.params.id;
+    if (req.user?.role !== "admin") {
+        return res.status(403).json({ message: "Forbidden" });
+    }
+    try {
+        const updatedUser = await User.findByIdAndUpdate(userId, { role: "admin" }, { new: true });
+        res.status(200).json({ message: "User promoted to admin successfully", user: updatedUser });
     } catch (error) {
         res.status(500).json({ message: "Server error" });
     }

@@ -3,11 +3,15 @@ import mongoose from "mongoose";
 import authRoutes from "./routes/authRoutes";
 import qoutesRoutes from "./routes/quotesRoutes";
 import quotesRoutes from "./routes/quotesRoutes";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI as string;
 
-mongoose.connect("mongodb://localhost:27017/quotly", {
+mongoose.connect(MONGO_URI, {
 }).then(() => {
     console.log("Connected to MongoDB");
 }).catch((error) => {
