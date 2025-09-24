@@ -20,7 +20,7 @@ export const registerUserRoutes = async (req: Request, res: Response) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ username, password: hashedPassword, role: role });
         await newUser.save();
-        const token = jwt.sign({ id: newUser._id, role: newUser.role }, "your_jwt_secret", { expiresIn: "1h" });
+        const token = jwt.sign({ id: newUser._id, role: newUser.role, username: newUser.username }, "your_jwt_secret", { expiresIn: "1h" });
         res.status(201).json({ user: { id: newUser._id, username: newUser.username, role: newUser.role }, token });
     } catch (error) {
         res.status(500).json({ message: `Internal server error: ${error}` });
@@ -38,7 +38,7 @@ export const loginUserRoutes = async (req: Request, res: Response) => {
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
-        const token = jwt.sign({ id: user._id, role: user.role }, "your_jwt_secret", { expiresIn: "1h" });
+        const token = jwt.sign({ id: user._id, role: user.role, username: user.username }, "your_jwt_secret", { expiresIn: "1h" });
         res.status(200).json({ message: "Login successful", user: { id: user._id, username: user.username, role: user.role }, token });
     } catch (error) {
         res.status(500).json({ message: `Internal server error: ${error}` });

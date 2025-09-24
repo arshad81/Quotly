@@ -1,35 +1,75 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
-import './App.css'
+import { useEffect, useState } from "react";
+import axios from "axios";
+import "./App.css"; // optional if you want custom styles
+
+interface Quote {
+  _id: string;
+  text: string;
+  author?: string;
+}
 
 function App() {
-  const [quotes, setQuotes] = useState<string[]>([])
+  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchQuotes = async () => {
       try {
-        const res = await axios.get('https://quotly.onrender.com/api/quotes');
+        const res = await axios.get("https://quotly.onrender.com/api/quotes");
         console.log(res.data.quotes);
         setQuotes(res.data.quotes);
       } catch (error) {
-        console.error('Error fetching quotes:', error);
+        console.error("Error fetching quotes:", error);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
     fetchQuotes();
-
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-gray-500 text-lg">Loading quotes...</p>
+      </div>
+    );
+  }
+
   return (
-    <>
-      <h1 className='text-3xl underline'>Quotly</h1>
-      <div>
-        {quotes.map((quote, index) => (
-          <div key={index} className="quote-card">
-            <p>{quote}</p>
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="flex justify-between items-center mb-12">
+        <h1 className="text-5xl text-center text-black italic mb-12 fon">
+          Quotly
+        </h1>
+        <div>
+          <button className="bg-green-500 text-white px-4 py-2 rounded-lg ml-4">
+            Login
+          </button>
+          <button className="bg-gray-500 text-white px-4 py-2 rounded-lg ml-4">
+            Register
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {quotes.map((quote) => (
+          <div
+            key={quote._id}
+            className="flex flex-col justify-between p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition duration-300"
+          >
+            <p className="text-gray-800 text-lg font-medium leading-relaxed">
+              "{quote.text}"
+            </p>
+            {quote.author && (
+              <p className="text-gray-500 mt-4 text-right italic">
+                - {quote.author}
+              </p>
+            )}
           </div>
         ))}
       </div>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
