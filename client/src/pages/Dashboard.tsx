@@ -9,16 +9,10 @@ interface Quote {
     author?: string;
 }
 
-interface DecodedToken {
-    username: string;
-    iat: number;
-    exp: number;
-}
 
 function Dashboard() {
     const [quotes, setQuotes] = useState<Quote[]>([]);
     const [loading, setLoading] = useState(true);
-    const [username, setUsername] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchQuotes = async () => {
