@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "../App.css" // optional if you want custom styles
-import { Link, Route } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 import Header from "../components/Header";
 
 interface Quote {
