@@ -87,3 +87,28 @@ export const makeAdmin = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ message: "Server error" });
     }
 }
+
+export const getAllUsers = async (req: AuthRequest, res: Response) => {
+    if (req.user?.role !== "admin") {
+        return res.status(403).json({ message: "Forbidden" });
+    }
+    try {
+        const users = await User.find().select("-password").sort({ createdAt: -1 });
+        res.status(200).json({ users });
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+export const revokeAdmin = async (req: AuthRequest, res: Response) => {
+    const userId = req.params.id;
+    if (req.user?.role !== "admin") {
+        return res.status(403).json({ message: "Forbidden" });
+    }
+    try {
+        const updatedUser = await User.findByIdAndUpdate(userId, { role: "user" }, { new: true });
+        res.status(200).json({ message: "Admin role revoked successfully", user: updatedUser });
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
+}   

@@ -55,6 +55,24 @@ export const deleteQuote = async (req: AuthRequest, res: Response) => {
         await Quote.findByIdAndDelete(quoteId);
         res.status(200).json({ message: "Quote deleted successfully" });
     } catch (error) {
-        
+
+    }
+}
+
+export const changeAuthorName = async (req: AuthRequest, res: Response) => {
+    console.log("changeAuthorName called with body:", req.body);
+    if(!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+    try {
+        console.log("Updating author names from", req.user.username, "to", req.body.username);
+        await Quote.updateMany(
+            { authorId: req.user._id },
+            { $set: { author: req.body.username } }
+        );
+        res.status(200).json({ message: "Author names updated successfully" });
+        console.log("Author names updated successfully");
+    } catch (error) {
+        console.error("Error updating author names:", error);
     }
 }
