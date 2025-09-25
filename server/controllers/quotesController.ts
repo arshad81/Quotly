@@ -32,7 +32,7 @@ export const getUserQuotes = async (req: AuthRequest, res: Response) => {
         return res.status(401).json({ message: "Unauthorized" });
     }
     try {
-        const quotes = await Quote.find({ author: req.user.username }).sort({ createdAt: -1 });
+        const quotes = await Quote.find({ authorId: req.user._id }).sort({ createdAt: -1 });
         res.status(200).json({ quotes });
     } catch (error) {
         res.status(500).json({ message: "Server error" });
