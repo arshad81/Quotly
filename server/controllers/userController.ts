@@ -111,4 +111,46 @@ export const revokeAdmin = async (req: AuthRequest, res: Response) => {
     } catch (error) {
         res.status(500).json({ message: "Server error" });
     }
-}   
+}
+
+export const addSavedQuote = async (req: AuthRequest, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+    try {
+        const quoteId = req.body.quoteId;
+        const userId = req.user.id;
+        const updatedUser = await User.findByIdAndUpdate(userId, { $addToSet: { saved: quoteId } }, { new: true });
+        res.status(200).json({ message: "Quote saved successfully", user: updatedUser });
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+export const allSavedQuotes = async (req: AuthRequest, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+    try {
+        const userId = req.user.id;
+        const user = await User.findById(userId).populate("saved");
+        console.log("User's saved quotes:", user);
+        res.status(200).json({ savedQuotes: user?.saved || [] });
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+export const removeSavedQuote = async (req: AuthRequest, res: Response) => {
+    if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+    try {
+        const quoteId = req.body.quoteId;
+        const userId = req.user.id;
+        const updatedUser = await User.findByIdAndUpdate(userId, { $pull: { saved: quoteId } }, { new: true });
+        res.status(200).json({ message: "Quote removed from saved successfully", user: updatedUser });
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
+}
